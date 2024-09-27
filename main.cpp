@@ -56,26 +56,21 @@ void levelOrder(avl_node *root)
 
 avl_node::node *avl_node::successor(node *root)
 {
-    if (!root->left)
-        return root;
+    if (root)
+        if (!root->left)
+            return root;
     return successor(root->left);
 }
 avl_node::node *avl_node::leftRotation(avl_node::node *root)
 {
 
-    avl_node *y = root->left;
+    avl_node *y = root->right;
     avl_node *x = root;
-    avl_node *z = y->left;
+    x->right = y->left;
+    y->left = x;
 
-    node *B = y->right;
-    y->right = x;
-    x->left = B;
-    if (x)
-        x->height = height_of_tree(x);
-    if (y)
-        y->height = height_of_tree(y);
-    if (z)
-        z->height = height_of_tree(z);
+    x->height = height_of_tree(x);
+    y->height = height_of_tree(y);
 
     return y;
 }
@@ -84,16 +79,15 @@ avl_node::node *avl_node::rightRotation(avl_node::node *root)
 {
 
     avl_node *x = root;
-    avl_node *y = x->right;
-    avl_node *z = y->right;
+    avl_node *y = x->left;
+    // avl_node* t = y->right ;
 
-    node *B = y->left;
-    y->left = x;
-    x->right = B;
+    x->left = y->right;
 
-    x->height = height_of_tree(x);
+    y->right = x;
+
     y->height = height_of_tree(y);
-    z->height = height_of_tree(z);
+    x->height = height_of_tree(x);
 
     return y;
 }
@@ -113,7 +107,7 @@ int avl_node::heavy(avl_node ::node *root)
 int avl_node::height_of_tree(node *root)
 {
     if (!root)
-        return 0;
+        return -1;
     else
         return 1 + max(height_of_tree(root->left), height_of_tree(root->right));
 }
@@ -177,10 +171,10 @@ avl_node ::node *avl_node::insert(node *root, int key)
     int bal = heavy(root);
 
     if (bal < -1 && key < root->left->val)
-        return leftRotation(root);
+        return rightRotation(root);
 
     if (bal > 1 && key > root->right->val)
-        return rightRotation(root);
+        return leftRotation(root);
     if (bal < -1 && key > root->left->val)
     {
         root->left = leftRotation(root->left);
@@ -234,11 +228,11 @@ int main()
     levelOrder(root);
     cout << endl;
 
-    // // Test deletion
-    // root = tree.delete_key(root, 20);
-    // cout << "Level Order Traversal after deletion of 20: ";
-    // levelOrder(root);
-    // cout << endl;
+    // Test deletion
+    root = tree.delete_key(root, 20);
+    cout << "Level Order Traversal after deletion of 20: ";
+    levelOrder(root);
+    cout << endl;
 
     return 0;
 }
