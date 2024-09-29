@@ -267,6 +267,35 @@ avl_node::node *avl_node::findLCA(node *root, int A1, int A2)
     return root;
 }
 
+void avl_node::InOrder(node *root)
+{
+    if (root == nullptr)
+        return;
+    InOrder(root->left);
+    cout << root->val << " ";
+    InOrder(root->right);
+}
+
+// PreOrder Traversal (Root, Left, Right)
+void avl_node::PreOrder(node *root)
+{
+    if (root == nullptr)
+        return;
+    cout << root->val << " ";
+    PreOrder(root->left);
+    PreOrder(root->right);
+}
+
+// PostOrder Traversal (Left, Right, Root)
+void avl_node::PostOrder(node *root)
+{
+    if (root == nullptr)
+        return;
+    PostOrder(root->left);
+    PostOrder(root->right);
+    cout << root->val << " ";
+}
+
 class bst_node
 {
 public:
@@ -340,19 +369,16 @@ void bst_node::removeTree(node *&root)
 
 bst_node::node *bst_node::findLCA(node *root, int A1, int A2)
 {
-    // Base case: If the root is NULL, return NULL
+
     if (root == nullptr)
         return nullptr;
 
-    // If both A1 and A2 are smaller than root, then LCA lies in the left subtree
     if (A1 < root->val && A2 < root->val)
         return findLCA(root->left, A1, A2);
 
-    // If both A1 and A2 are greater than root, then LCA lies in the right subtree
     if (A1 > root->val && A2 > root->val)
         return findLCA(root->right, A1, A2);
 
-    // If one key is on one side and the other is on the other side, the current node is the LCA
     return root;
 }
 void postOrderFromPreIn(int pre[], int in[], int inStart, int inEnd, int &preIndex)
@@ -360,7 +386,6 @@ void postOrderFromPreIn(int pre[], int in[], int inStart, int inEnd, int &preInd
     if (inStart > inEnd)
         return;
 
-    // The first element in preorder is the root
     int rootVal = pre[preIndex++];
 
     // Find the index of the root in inorder traversal
