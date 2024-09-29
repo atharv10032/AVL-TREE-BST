@@ -27,7 +27,73 @@ public:
     node *successor(node *root);
     int countLeaves(node *root);
     int numberOfNodes(node *root);
+    void boundaryOrderTraversal(node *root);
+    void printRightBoundary(node *root);
+    void printLeftBoundary(node *root);
+    void printLeaves(node *root);
+    void removeTree(node *&root);
 };
+
+void avl_node::removeTree(node *&root)
+{
+    if (!root)
+        return;
+    removeTree(root->left);
+    removeTree(root->right);
+    delete root;
+    root = nullptr;
+}
+
+void avl_node::printLeaves(node *root)
+{
+    if (!root)
+        return;
+
+    printLeaves(root->right);
+
+    if (!root->left && !root->right)
+        cout << root->val << ' ';
+
+    printLeaves(root->left);
+}
+void avl_node::printRightBoundary(node *root)
+{
+    if (!root)
+        return;
+    if (!root->right && !root->left)
+        return;
+    cout << root->val << ' ';
+    if (root->right)
+        printRightBoundary(root->right);
+    else
+        printRightBoundary(root->left);
+}
+void avl_node::printLeftBoundary(node *root)
+{
+
+    if (!root)
+        return;
+    if (root->left)
+    {
+        printLeftBoundary(root->left);
+        cout << root->val << " ";
+    }
+    else if (root->right)
+    {
+        printLeftBoundary(root->right);
+        cout << root->val << ' ';
+    }
+}
+
+void avl_node::boundaryOrderTraversal(node *root)
+{
+    cout << root->val << ' ';
+    printRightBoundary(root->right);
+
+    printLeaves(root);
+    printLeftBoundary(root->left);
+    cout << endl;
+}
 
 int avl_node::numberOfNodes(node *root)
 {
@@ -202,7 +268,186 @@ public:
     int height_of_tree(node *root);
     int countLeaves(node *root);
     int numberOfNodes(node *root);
+    void boundaryOrderTraversal(node *root);
+    void printRightBoundary(node *root);
+    void printLeftBoundary(node *root);
+    void printLeaves(node *root);
+    node *findLCA(node *root, int A1, int A2);
+    void removeTree(node *&root);
+    node *successor(node *root);
 };
+
+bst_node::node *bst_node::successor(node *root)
+{
+    if (root)
+        if (!root->left)
+            return root;
+    return successor(root->left);
+}
+
+bst_node::node *bst_node::delete_key(node *root, int key)
+{
+    if (!root)
+        return root;
+
+    if (key < root->val)
+        root->left = delete_key(root->left, key);
+    else if (key > root->val)
+        root->right = delete_key(root->right, key);
+    else
+    {
+        if (!root->left && !root->right)
+            return nullptr;
+        if (!root->right)
+            return root->left;
+        if (!root->left)
+            return root->right;
+        node *succ = successor(root->right);
+        root->val = succ->val;
+        root->right = delete_key(root->right, succ->val);
+        return root;
+    }
+    return root;
+}
+void bst_node::removeTree(node *&root)
+{
+    if (!root)
+        return;
+    removeTree(root->left);
+    removeTree(root->right);
+    delete root;
+    root = nullptr;
+}
+
+bst_node::node *bst_node::findLCA(node *root, int A1, int A2)
+{
+    // Base case: If the root is NULL, return NULL
+    if (root == nullptr)
+        return nullptr;
+
+    // If both A1 and A2 are smaller than root, then LCA lies in the left subtree
+    if (A1 < root->val && A2 < root->val)
+        return findLCA(root->left, A1, A2);
+
+    // If both A1 and A2 are greater than root, then LCA lies in the right subtree
+    if (A1 > root->val && A2 > root->val)
+        return findLCA(root->right, A1, A2);
+
+    // If one key is on one side and the other is on the other side, the current node is the LCA
+    return root;
+}
+void postOrderFromPreIn(int pre[], int in[], int inStart, int inEnd, int &preIndex)
+{
+    if (inStart > inEnd)
+        return;
+
+    // The first element in preorder is the root
+    int rootVal = pre[preIndex++];
+
+    // Find the index of the root in inorder traversal
+    int inIndex;
+    for (inIndex = inStart; inIndex <= inEnd; ++inIndex)
+    {
+        if (in[inIndex] == rootVal)
+            break;
+    }
+
+    // Recursively find postorder of the left subtree
+    postOrderFromPreIn(pre, in, inStart, inIndex - 1, preIndex);
+
+    // Recursively find postorder of the right subtree
+    postOrderFromPreIn(pre, in, inIndex + 1, inEnd, preIndex);
+
+    // Print the root after left and right subtrees have been processed
+    cout << rootVal << " ";
+}
+
+void printPostOrderFromPreIn(int pre[], int in[], int n)
+{
+    int preIndex = 0;
+    postOrderFromPreIn(pre, in, 0, n - 1, preIndex);
+}
+
+void preOrderFromPostIn(int post[], int in[], int inStart, int inEnd, int &postIndex)
+{
+    if (inStart > inEnd)
+        return;
+
+    // The last element in postorder is the root
+    int rootVal = post[postIndex--];
+
+    // Find the index of the root in inorder traversal
+    int inIndex;
+    for (inIndex = inStart; inIndex <= inEnd; ++inIndex)
+    {
+        if (in[inIndex] == rootVal)
+            break;
+    }
+
+    // Print the root first for preorder
+    cout << rootVal << " ";
+
+    // Recursively find preorder of the right subtree (process right subtree first)
+    preOrderFromPostIn(post, in, inIndex + 1, inEnd, postIndex);
+
+    // Recursively find preorder of the left subtree
+    preOrderFromPostIn(post, in, inStart, inIndex - 1, postIndex);
+}
+
+void printPreOrderFromPostIn(int post[], int in[], int n)
+{
+    int postIndex = n - 1;
+    preOrderFromPostIn(post, in, 0, n - 1, postIndex);
+}
+
+void bst_node::printLeaves(node *root)
+{
+    if (!root)
+        return;
+
+    printLeaves(root->right);
+
+    if (!root->left && !root->right)
+        cout << root->val << ' ';
+
+    printLeaves(root->left);
+}
+void bst_node::printRightBoundary(node *root)
+{
+    if (!root)
+        return;
+    if (!root->right && !root->left)
+        return;
+    cout << root->val << ' ';
+    if (root->right)
+        printRightBoundary(root->right);
+    else
+        printRightBoundary(root->left);
+}
+void bst_node::printLeftBoundary(node *root)
+{
+
+    if (!root)
+        return;
+    if (root->left)
+        printLeftBoundary(root->left);
+
+    else if (root->right)
+        printLeftBoundary(root->right);
+    if (!root->right && !root->left)
+        return;
+
+    cout << root->val << ' ';
+}
+
+void bst_node::boundaryOrderTraversal(node *root)
+{
+    cout << root->val << ' ';
+    printRightBoundary(root->right);
+    printLeaves(root);
+    printLeftBoundary(root->left);
+    cout << endl;
+}
 
 int bst_node::numberOfNodes(node *root)
 {
@@ -263,57 +508,6 @@ bst_node::node *bst_node::search(node *root, int key)
     return search(root->right, key);
 }
 
-// Function to find the inorder successor (smallest in the right subtree)
-bst_node::node *inorderSuccessor(bst_node *root)
-{
-    bst_node *current = root;
-    while (current && current->left != nullptr)
-    {
-        current = current->left;
-    }
-    return current;
-}
-
-// Delete function for BST
-bst_node::node *bst_node::delete_key(node *root, int key)
-{
-    if (root == nullptr)
-        return root;
-
-    // Traverse the tree to find the node to be deleted
-    if (key < root->val)
-        root->left = delete_key(root->left, key);
-    else if (key > root->val)
-        root->right = delete_key(root->right, key);
-    else
-    {
-        // Node with only one child or no child
-        if (root->left == nullptr)
-        {
-            node *temp = root->right;
-            delete root;
-            return temp;
-        }
-        else if (root->right == nullptr)
-        {
-            node *temp = root->left;
-            delete root;
-            return temp;
-        }
-
-        // Node with two children: Get the inorder successor
-        node *temp = inorderSuccessor(root->right);
-
-        // Copy the inorder successor's value to this node
-        root->val = temp->val;
-
-        // Delete the inorder successor
-        root->right = delete_key(root->right, temp->val);
-    }
-    return root;
-}
-
-// InOrder Traversal (Left, Root, Right)
 void bst_node::InOrder(node *root)
 {
     if (root == nullptr)
@@ -353,6 +547,146 @@ int bst_node::height_of_tree(node *root)
 
 int main()
 {
+    int testCases;
+    cin >> testCases;
+    while (testCases--)
+    {
+        string command;
+        bst_node *bstRoot = nullptr;
+        avl_node *avlRoot = nullptr;
+        bst_node bstTree(0);
+        avl_node avlTree(0);
+        bool avl = 0, bst = 0;
 
+        while (cin >> command && command != "D")
+        {
+            if (command == "B" || command == "A")
+            {
+                int N;
+                cin >> N;
+                for (int i = 0; i < N; ++i)
+                {
+                    int value;
+                    cin >> value;
+                    if (value > 0)
+                    {
+                        if (command == "B")
+                            bstRoot = bstTree.insert(bstRoot, value);
+                        else
+                            avlRoot = avlTree.insert(avlRoot, value);
+                    }
+                    else if (value < 0)
+                    {
+                        if (command == "B")
+                            bstRoot = bstTree.delete_key(bstRoot, -value);
+                        else
+                            avlRoot = avlTree.delete_key(avlRoot, -value);
+                    }
+                    if (command == "B")
+                        bst = 1;
+                    else
+                        avl = 1;
+                }
+            }
+            else if (command == "I")
+            {
+                int value;
+                cin >> value;
+                if (!avl)
+                    bstRoot = bstTree.insert(bstRoot, value);
+                else
+                    avlRoot = avlTree.insert(avlRoot, value);
+            }
+            else if (command == "R")
+            {
+                int value;
+                cin >> value;
+                if (!avl)
+                    bstRoot = bstTree.delete_key(bstRoot, value);
+                else
+                    avlRoot = avlTree.delete_key(avlRoot, value);
+            }
+            else if (command == "F")
+            {
+                int X;
+                cin >> X;
+                if (X > 0)
+                {
+                    auto node = bstTree.search(bstRoot, X);
+                    cout << (node ? "Yes" : "No") << endl;
+                }
+            }
+            else if (command == "L")
+            {
+                cout << bstTree.countLeaves(bstRoot) << endl;
+            }
+            else if (command == "N")
+            {
+                cout << bstTree.numberOfNodes(bstRoot) << endl;
+            }
+            else if (command == "Q")
+            {
+                bstTree.InOrder(bstRoot);
+                cout << endl;
+            }
+            else if (command == "W")
+            {
+                bstTree.PreOrder(bstRoot);
+                cout << endl;
+            }
+            else if (command == "E")
+            {
+                bstTree.PostOrder(bstRoot);
+                cout << endl;
+            }
+            else if (command == "H")
+            {
+                cout << bstTree.height_of_tree(bstRoot) << endl;
+            }
+            else if (command == "M")
+            {
+                if (!avl)
+                    bstTree.boundaryOrderTraversal(bstRoot);
+                else
+                    avlTree.boundaryOrderTraversal(avlRoot);
+            }
+            else if (command == "C")
+            {
+                int A1, A2;
+                cin >> A1 >> A2;
+                auto lca = bstTree.findLCA(bstRoot, A1, A2);
+                cout << (lca ? lca->val : -1) << endl;
+            }
+            else if (command == "Z")
+            {
+                int N;
+                cin >> N;
+                int preOrder[N], inOrder[N];
+                for (int i = 0; i < N; ++i)
+                    cin >> preOrder[i];
+                for (int i = 0; i < N; ++i)
+                    cin >> inOrder[i];
+                printPostOrderFromPreIn(preOrder, inOrder, N);
+                cout << endl;
+            }
+            else if (command == "Y")
+            {
+                int N;
+                cin >> N;
+                int postOrder[N], inOrder[N];
+                for (int i = 0; i < N; ++i)
+                    cin >> postOrder[i];
+                for (int i = 0; i < N; ++i)
+                    cin >> inOrder[i];
+                printPreOrderFromPostIn(postOrder, inOrder, N);
+                cout << endl;
+            }
+            else if (command == "K")
+            {
+                bstTree.removeTree(bstRoot);
+                avlTree.removeTree(avlRoot);
+            }
+        }
+    }
     return 0;
 }
