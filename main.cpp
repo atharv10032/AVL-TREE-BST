@@ -32,6 +32,7 @@ public:
     void printLeftBoundary(node *root);
     void printLeaves(node *root);
     void removeTree(node *&root);
+    node *findLCA(node *root, int A1, int A2);
 };
 
 void avl_node::removeTree(node *&root)
@@ -245,6 +246,24 @@ avl_node ::node *avl_node::insert(node *root, int key)
         return leftRotation(root);
     }
 
+    return root;
+}
+
+avl_node::node *avl_node::findLCA(node *root, int A1, int A2)
+{
+    // Base case: If the root is NULL, return NULL
+    if (root == nullptr)
+        return nullptr;
+
+    // If both A1 and A2 are smaller than root, then LCA lies in the left subtree
+    if (A1 < root->val && A2 < root->val)
+        return findLCA(root->left, A1, A2);
+
+    // If both A1 and A2 are greater than root, then LCA lies in the right subtree
+    if (A1 > root->val && A2 > root->val)
+        return findLCA(root->right, A1, A2);
+
+    // If one key is on one side and the other is on the other side, the current node is the LCA
     return root;
 }
 
@@ -618,30 +637,48 @@ int main()
             }
             else if (command == "L")
             {
-                cout << bstTree.countLeaves(bstRoot) << endl;
+                if (!avl)
+                    cout << bstTree.countLeaves(bstRoot) << endl;
+                else
+                    cout << avlTree.countLeaves(avlRoot) << endl;
             }
             else if (command == "N")
             {
-                cout << bstTree.numberOfNodes(bstRoot) << endl;
+                if (!avl)
+                    cout << bstTree.numberOfNodes(bstRoot) << endl;
+                else
+                    cout << avlTree.numberOfNodes(avlRoot) << endl;
             }
             else if (command == "Q")
             {
-                bstTree.InOrder(bstRoot);
+                if (!avl)
+                    bstTree.InOrder(bstRoot);
+                else
+                    avlTree.InOrder(avlRoot);
                 cout << endl;
             }
             else if (command == "W")
             {
-                bstTree.PreOrder(bstRoot);
+                if (!avl)
+                    bstTree.PreOrder(bstRoot);
+                else
+                    avlTree.PreOrder(avlRoot);
                 cout << endl;
             }
             else if (command == "E")
             {
-                bstTree.PostOrder(bstRoot);
+                if (!avl)
+                    bstTree.PostOrder(bstRoot);
+                else
+                    avlTree.PostOrder(avlRoot);
                 cout << endl;
             }
             else if (command == "H")
             {
-                cout << bstTree.height_of_tree(bstRoot) << endl;
+                if (!avl)
+                    cout << bstTree.height_of_tree(bstRoot) << endl;
+                else
+                    cout << avlTree.height_of_tree(avlRoot) << endl;
             }
             else if (command == "M")
             {
@@ -654,9 +691,18 @@ int main()
             {
                 int A1, A2;
                 cin >> A1 >> A2;
-                auto lca = bstTree.findLCA(bstRoot, A1, A2);
-                cout << (lca ? lca->val : -1) << endl;
+                if (!avl)
+                {
+                    auto lca = bstTree.findLCA(bstRoot, A1, A2);
+                    cout << (lca ? lca->val : -1) << endl;
+                }
+                else
+                {
+                    auto lca = avlTree.findLCA(avlRoot, A1, A2);
+                    cout << (lca ? lca->val : -1) << endl;
+                }
             }
+
             else if (command == "Z")
             {
                 int N;
