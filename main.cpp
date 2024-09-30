@@ -585,7 +585,7 @@ void bst_node::PostOrder(node *root)
 int bst_node::height_of_tree(node *root)
 {
     if (root == nullptr)
-        return 0;
+        return -1;
     return 1 + max(height_of_tree(root->left), height_of_tree(root->right));
 }
 
